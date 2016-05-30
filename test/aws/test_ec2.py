@@ -31,7 +31,8 @@ class TestEc2(unittest.TestCase):
         # false
         with self.assertRaises(Exception) as e:
             Ec2('')
-            self.assertEqual(str(e.exception), 'You must specify a region.')
+
+        self.assertEqual(str(e.exception), 'You must specify a region.')
 
     def test_start(self):
 
