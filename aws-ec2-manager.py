@@ -1,11 +1,7 @@
 #!/usr/bin/env python3.5
 # -*- coding: utf-8 -*-
 import sys
-from aws.ec2 import Ec2
-
-__author__ = 'Masato Morita'
-__version__ = '1.0.1'
-
+from aws import EC2
 
 HELP_SENTENCE = 'Usage: aws-ec2-manager.py <command> <instanceId>\n\n' + \
                 'Common commands:\n' + \
@@ -21,7 +17,7 @@ if __name__ == '__main__':
 
         if command == 'start':
             # start command procedures.
-            ec2 = Ec2(instanceId)
+            ec2 = EC2(instanceId)
             if not ec2.start():
                 raise Exception(ec2.message)
 
@@ -30,7 +26,7 @@ if __name__ == '__main__':
 
         elif command == 'stop':
             # stop command procedures.
-            ec2 = Ec2(instanceId)
+            ec2 = EC2(instanceId)
             
             if not ec2.stop():
                 raise Exception(ec2.message)
@@ -39,7 +35,7 @@ if __name__ == '__main__':
 
         elif command == 'status':
             # status command procedures.
-            ec2 = Ec2(instanceId)
+            ec2 = EC2(instanceId)
             print('Status: %(Name)s' % ec2.state)
 
         elif command == 'help':

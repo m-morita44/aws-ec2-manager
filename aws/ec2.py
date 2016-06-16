@@ -1,37 +1,32 @@
 #!/usr/bin/env python3.5
 # -*- coding: utf-8 -*-
-import enum
-import boto3
-
-__author__ = 'Masato Morita'
-__version__ = '1.0.0'
+from enum import IntEnum, unique
+from boto3 import Session
 
 
-class State(enum.Enum):
-    """
-    State of the EC2 instance enumeration.
-    """
-    PENDING = 0
-    RUNNING = 16
-    SHUTTING_DOWN = 32
-    TERMINATED = 48
-    STOPPING = 64
-    STOPPED = 80
+@unique
+class State(IntEnum):
+    """State of the EC2 instance enumeration."""
+    pending = 0
+    running = 16
+    shutting_down = 32
+    terminated = 48
+    stopping = 64
+    stopped = 80
 
 
-class Ec2(object):
+class EC2(object):
     """Object wrapper for resources.
 
     Provides an object interface to resources returned by the Soundcloud API.
     """
     def __init__(self, instance_id: str):
-        self.__instance = boto3.Session().resource('ec2').Instance(instance_id)
+        self.__instance = Session().resource('ec2').Instance(instance_id)
         self.__message = ''
 
     @property
     def state(self) -> dict:
-        """
-        Get status.
+        """Get status.
 
         :return: Dictionary {Code: Int, Name: String}
         """
@@ -39,36 +34,24 @@ class Ec2(object):
 
     @property
     def public_ip_address(self) -> str:
-        """
-        Get public ip address.
-
-        :return: String
-        """
+        """Get public ip address."""
         return self.__instance.public_ip_address
 
     @property
     def message(self) -> str:
-        """
-        Start message.
-
-        :return: String
-        """
+        """Start message."""
         return self.__message
 
     def start(self) -> bool:
-        """
-        Start procedures.
-
-        :return: Boolean
-        """
+        """Start procedures."""
         # initialize
         self.__message = ''
 
         # Check state of the instance.
-        if State(self.state['Code']) == State.RUNNING:
+        if self.state['Code'] == State.running:
             self.__message = 'Already started.'
             return True
-        elif State(self.state['Code']) == State.PENDING:
+        elif self.state['Code'] == State.pending:
             self.__message = 'ERROR: The instance is %(Name)s, Can\'t start.' % self.state
             return False
 
@@ -78,17 +61,13 @@ class Ec2(object):
         return True
 
     def stop(self) -> bool:
-        """
-        Stop procedures.
-
-        :return: Boolean
-        """
+        """Stop procedures."""
         # initialize
         self.__message = ''
 
         # Check state of the instance.
-        if State(self.state['Code']) in [State.SHUTTING_DOWN, State.STOPPING,
-                                         State.TERMINATED, State.STOPPED]:
+        if self.state['Code'] in [State.shutting_down, State.stopping,
+                                  State.terminated, State.stopped]:
             self.__message = 'Already stopped.'
             return True
 
