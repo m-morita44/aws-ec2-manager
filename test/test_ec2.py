@@ -12,19 +12,34 @@ class StubEC2(EC2):
         self.__message = ''
 
 
-class InstanceId:
+class InstanceId(object):
 
-    def start(self):
+    @property
+    def instance_id(self):
         return None
 
-    def stop(self):
+    @staticmethod
+    def start():
         return None
 
-    def wait_until_running(self):
+    @staticmethod
+    def stop():
         return None
 
-    def wait_until_stopped(self):
+    @staticmethod
+    def wait_until_running():
         return None
+
+    @staticmethod
+    def wait_until_stopped():
+        return None
+
+
+class SSM(object):
+
+    @staticmethod
+    def send_command(*args, **kwargs) -> dict:
+        return {'Command': {'Status': 'Pending'}}
 
 
 # noinspection PyUnresolvedReferences
@@ -41,54 +56,83 @@ class TestEC2(unittest.TestCase):
         ec2 = StubEC2()
         ec2._EC2__instance = InstanceId()
 
-        with patch.object(StubEC2, 'state', {'Code': 0, 'Name': 'pending'}):
-            self.assertEqual(ec2.start(), False)
-            self.assertEqual(ec2.message, 'ERROR: The instance is pending, Can\'t start.')
+        with patch.object(StubEC2, 'state', {'Code': 0, 'Name': 'PENDING'}):
+            with self.assertRaises(Exception) as e:
+                ec2.start()
+
+            self.assertEqual(str(e.exception), 'The instance is PENDING, Can\'t start.')
 
         with patch.object(StubEC2, 'state', {'Code': 16, 'Name': 'RUNNING'}):
-            self.assertEqual(ec2.start(), True)
-            self.assertEqual(ec2.message, 'Already started.')
+            ec2.start()
 
         with patch.object(StubEC2, 'state', {'Code': 32, 'Name': 'SHUTTING_DOWN'}):
-            self.assertEqual(ec2.start(), True)
-            self.assertEqual(ec2.message, '')
+            ec2.start()
 
         with patch.object(StubEC2, 'state', {'Code': 48, 'Name': 'TERMINATED'}):
-            self.assertEqual(ec2.start(), True)
-            self.assertEqual(ec2.message, '')
+            ec2.start()
 
         with patch.object(StubEC2, 'state', {'Code': 64, 'Name': 'STOPPING'}):
-            self.assertEqual(ec2.start(), True)
-            self.assertEqual(ec2.message, '')
+            ec2.start()
 
         with patch.object(StubEC2, 'state', {'Code': 80, 'Name': 'STOPPED'}):
-            self.assertEqual(ec2.start(), True)
-            self.assertEqual(ec2.message, '')
+            ec2.start()
 
     def test_stop(self):
         ec2 = StubEC2()
         ec2._EC2__instance = InstanceId()
 
         with patch.object(StubEC2, 'state', {'Code': 0, 'Name': 'PENDING'}):
-            self.assertEqual(ec2.stop(), True)
-            self.assertEqual(ec2.message, '')
+            ec2.stop()
 
         with patch.object(StubEC2, 'state', {'Code': 16, 'Name': 'RUNNING'}):
-            self.assertEqual(ec2.stop(), True)
-            self.assertEqual(ec2.message, '')
+            ec2.stop()
 
         with patch.object(StubEC2, 'state', {'Code': 32, 'Name': 'SHUTTING_DOWN'}):
-            self.assertEqual(ec2.stop(), True)
-            self.assertEqual(ec2.message, 'Already stopped.')
+            ec2.stop()
 
         with patch.object(StubEC2, 'state', {'Code': 48, 'Name': 'TERMINATED'}):
-            self.assertEqual(ec2.stop(), True)
-            self.assertEqual(ec2.message, 'Already stopped.')
+            ec2.stop()
 
         with patch.object(StubEC2, 'state', {'Code': 64, 'Name': 'STOPPING'}):
-            self.assertEqual(ec2.stop(), True)
-            self.assertEqual(ec2.message, 'Already stopped.')
+            ec2.stop()
 
         with patch.object(StubEC2, 'state', {'Code': 80, 'Name': 'STOPPED'}):
-            self.assertEqual(ec2.stop(), True)
-            self.assertEqual(ec2.message, 'Already stopped.')
+            ec2.stop()
+
+    def test_run_command(self):
+        ec2 = StubEC2()
+        ec2._EC2__instance = InstanceId()
+        ec2._EC2__ssm = SSM()
+
+        with patch.object(StubEC2, 'state', {'Code': 0, 'Name': 'PENDING'}):
+            with self.assertRaises(Exception) as e:
+                ec2.run_command('')
+
+        self.assertEqual(str(e.exception), 'The instance is PENDING, Can\'t run command.')
+
+        with patch.object(StubEC2, 'state', {'Code': 16, 'Name': 'RUNNING'}):
+            self.assertEqual(ec2.run_command(''), 'Pending')
+
+        with patch.object(StubEC2, 'state', {'Code': 32, 'Name': 'SHUTTING_DOWN'}):
+            with self.assertRaises(Exception) as e:
+                ec2.run_command('')
+
+        self.assertEqual(str(e.exception), 'The instance is SHUTTING_DOWN, Can\'t run command.')
+
+        with patch.object(StubEC2, 'state', {'Code': 48, 'Name': 'TERMINATED'}):
+            with self.assertRaises(Exception) as e:
+                ec2.run_command('')
+
+        self.assertEqual(str(e.exception), 'The instance is TERMINATED, Can\'t run command.')
+
+        with patch.object(StubEC2, 'state', {'Code': 64, 'Name': 'STOPPING'}):
+            with self.assertRaises(Exception) as e:
+                ec2.run_command('')
+
+        self.assertEqual(str(e.exception), 'The instance is STOPPING, Can\'t run command.')
+
+        with patch.object(StubEC2, 'state', {'Code': 80, 'Name': 'STOPPED'}):
+            with self.assertRaises(Exception) as e:
+                ec2.run_command('')
+
+        self.assertEqual(str(e.exception), 'The instance is STOPPED, Can\'t run command.')

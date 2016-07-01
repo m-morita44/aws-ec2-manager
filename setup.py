@@ -7,7 +7,7 @@ except ImportError:
     from distutils.core import setup
 
 setup(name='aws-ec2-manager',
-      version='1.3',
+      version='1.4',
       description='AWS EC2 Manager',
       author='Masato Morita',
       author_email='m.morita44@hotmail.com',

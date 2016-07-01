@@ -21,8 +21,9 @@ class EC2(object):
     Provides an object interface to resources returned by the Soundcloud API.
     """
     def __init__(self, instance_id: str):
-        self.__instance = Session().resource('ec2').Instance(instance_id)
-        self.__message = ''
+        session = Session()
+        self.__instance = session.resource('ec2').Instance(instance_id)
+        self.__ssm = session.resource('ssm')
 
     @property
     def state(self) -> dict:
@@ -37,41 +38,39 @@ class EC2(object):
         """Get public ip address."""
         return self.__instance.public_ip_address
 
-    @property
-    def message(self) -> str:
-        """Start message."""
-        return self.__message
-
-    def start(self) -> bool:
+    def start(self):
         """Start procedures."""
-        # initialize
-        self.__message = ''
 
         # Check state of the instance.
         if self.state['Code'] == State.running:
-            self.__message = 'Already started.'
-            return True
+            return
         elif self.state['Code'] == State.pending:
-            self.__message = 'ERROR: The instance is %(Name)s, Can\'t start.' % self.state
-            return False
+            raise Exception('The instance is %(Name)s, Can\'t start.' % self.state)
 
-        # start instance
+        # Start instance
         self.__instance.start()
         self.__instance.wait_until_running()
-        return True
 
-    def stop(self) -> bool:
+    def stop(self):
         """Stop procedures."""
-        # initialize
-        self.__message = ''
 
         # Check state of the instance.
         if self.state['Code'] in [State.shutting_down, State.stopping,
                                   State.terminated, State.stopped]:
-            self.__message = 'Already stopped.'
-            return True
+            return
 
         # start instance
         self.__instance.stop()
         self.__instance.wait_until_stopped()
-        return True
+
+    def run_command(self, shell_command: str) -> str:
+        """"Run Command procedures."""
+
+        # Check state of the instance.
+        if not self.state['Code'] == State.running:
+            raise Exception('The instance is %(Name)s, Can\'t run command.' % self.state)
+
+        result = self.__ssm.send_command([self.__instance.instance_id], 'AWS-RunShellScript',
+                                         Parameters={'commands': [shell_command]})
+
+        return result['Command']['Status']
