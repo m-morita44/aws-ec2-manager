@@ -23,7 +23,7 @@ class EC2(object):
     def __init__(self, instance_id: str):
         session = Session()
         self.__instance = session.resource('ec2').Instance(instance_id)
-        self.__ssm = session.resource('ssm')
+        self.__ssm = session.client('ssm')
 
     @property
     def state(self) -> dict:
@@ -70,7 +70,7 @@ class EC2(object):
         if not self.state['Code'] == State.running:
             raise Exception('The instance is %(Name)s, Can\'t run command.' % self.state)
 
-        result = self.__ssm.send_command([self.__instance.instance_id], 'AWS-RunShellScript',
+        result = self.__ssm.send_command(InstanceIds=[self.__instance.instance_id], DocumentName='AWS-RunShellScript',
                                          Parameters={'commands': [shell_command]})
 
         return result['Command']['Status']
