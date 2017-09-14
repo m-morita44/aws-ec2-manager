@@ -12,7 +12,7 @@ class TestCommand(unittest.TestCase):
 
     def test_init(self):
         # initialize
-        help_sentence = 'Usage: aws-ec2-manager.py [options] <command> [<args>]\n\n' + \
+        help_sentence = 'Usage: aws-ec2-manager [options] <command> [<args>]\n\n' + \
                         '--help        Print this help.\n' + \
                         '\nCommon commands:\n' + \
                         'start         starts the instance.\n' + \
@@ -38,7 +38,7 @@ class TestCommand(unittest.TestCase):
 
     def test_start(self):
         # initialize
-        start_sentence = 'Usage: aws-ec2-manager.py start [options] <instance id>\n\n' + \
+        start_sentence = 'Usage: aws-ec2-manager start [options] <instance id>\n\n' + \
                          '--timeout sec    Tell init(8) to wait sec seconds, then shuts the system down'
 
         # success
@@ -75,7 +75,7 @@ class TestCommand(unittest.TestCase):
 
     def test_stop(self):
         # initialize
-        stop_sentence = 'Usage: aws-ec2-manager.py stop <instance id>'
+        stop_sentence = 'Usage: aws-ec2-manager stop <instance id>'
 
         # failure
         with self.assertRaises(ValueError) as e:
@@ -98,7 +98,7 @@ class TestCommand(unittest.TestCase):
 
     def test_status(self):
         # initialize
-        status_sentence = 'Usage: aws-ec2-manager.py status <instance id>'
+        status_sentence = 'Usage: aws-ec2-manager status <instance id>'
 
         # failure
         with self.assertRaises(ValueError) as e:
@@ -121,7 +121,7 @@ class TestCommand(unittest.TestCase):
 
     def test_run_command(self):
         # initialize
-        run_command_sentence = 'Usage: aws-ec2-manager.py run_command <instance id> <shell command>'
+        run_command_sentence = 'Usage: aws-ec2-manager run_command <instance id> <shell command>'
 
         # failure
         with self.assertRaises(ValueError) as e:

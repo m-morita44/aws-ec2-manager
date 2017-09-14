@@ -34,5 +34,5 @@ python setup.py install
 ## Usage
 
 ```
-aws-ec2-manager.py <command> <instanceId>
+aws-ec2-manager <command> <instanceId>
 ```

@@ -5,7 +5,7 @@ from aws import EC2
 
 class Command(object):
 
-    __help_sentence__ = 'Usage: aws-ec2-manager.py [options] <command> [<args>]\n\n' + \
+    __help_sentence__ = 'Usage: aws-ec2-manager [options] <command> [<args>]\n\n' + \
                         '--help        Print this help.\n' + \
                         '\nCommon commands:\n' + \
                         'start         starts the instance.\n' + \
@@ -40,10 +40,10 @@ class Command(object):
                     if a == '--timeout':
                         options['timeout'] = next(args, '')
                         if not options['timeout'].isdigit():
-                            raise ValueError('Usage: aws-ec2-manager.py start [options] <instance id>\n\n' +
+                            raise ValueError('Usage: aws-ec2-manager start [options] <instance id>\n\n' +
                                              '--timeout sec    Tell init(8) to wait sec seconds, then shuts the system down');
                     else:
-                        raise ValueError('Usage: aws-ec2-manager.py start [options] <instance id>\n\n' +
+                        raise ValueError('Usage: aws-ec2-manager start [options] <instance id>\n\n' +
                                          '--timeout sec    Tell init(8) to wait sec seconds, then shuts the system down')
                 else:
                     instance_id = a
@@ -64,7 +64,7 @@ class Command(object):
 
         # check arguments.
         if not len(self.__arguments) == 3:
-            raise ValueError('Usage: aws-ec2-manager.py stop <instance id>')
+            raise ValueError('Usage: aws-ec2-manager stop <instance id>')
 
         ec2 = EC2(self.__arguments[2])
         ec2.stop()
@@ -76,7 +76,7 @@ class Command(object):
 
         # check arguments.
         if not len(self.__arguments) == 3:
-            raise ValueError('Usage: aws-ec2-manager.py status <instance id>')
+            raise ValueError('Usage: aws-ec2-manager status <instance id>')
 
         ec2 = EC2(self.__arguments[2])
 
@@ -88,7 +88,7 @@ class Command(object):
 
         # check arguments.
         if not len(self.__arguments) == 4:
-            raise ValueError('Usage: aws-ec2-manager.py run_command <instance id> <shell command>')
+            raise ValueError('Usage: aws-ec2-manager run_command <instance id> <shell command>')
 
         ec2 = EC2(self.__arguments[2])
         print('Result Status: %s' % ec2.run_command(self.__arguments[3]))
