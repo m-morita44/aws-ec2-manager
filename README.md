@@ -4,10 +4,10 @@ the tools is managing AWS EC2 instance by python3.
 
 ## Install
 
-First, install the boto3 library and set a default region:
+First, install the aws-ec2-manager library:
 
 ```
-$ pip install boto3
+$ pip install git+https://github.com/mmorita44/aws-ec2-manager.git@master#egg=aws-ec2-manager
 ```
 
 Next, set up credentials (in e.g. `~/.aws/credentials`):
@@ -23,12 +23,6 @@ Then, set up a default region (in e.g. `~/.aws/config`):
 ```
 [default]
 region = us-east-1
-```
-
-Then, set up the script.
-
-```
-python setup.py install
 ```
 
 ## Usage
